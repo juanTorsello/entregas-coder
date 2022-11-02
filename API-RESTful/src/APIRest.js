@@ -2,6 +2,7 @@ const { json } = require("express");
 const express = require("express");
 const { Router } = express;
 const path = require("path")
+const fs = require('fs');
 
 const app  = express();
 const routerApi = Router();
@@ -11,7 +12,8 @@ app.use(express.json())
 
 const modulo_Contenedor = require("../class_Contenedor");
 const Contenedor = modulo_Contenedor.Contenedor
-const unContenedor = new Contenedor ("producto.txt")
+const fileName = "producto.txt"
+const unContenedor = new Contenedor (fileName)
 
 async function inicializar_contenedor(){
     
@@ -50,9 +52,11 @@ routerApi.post("/",(req,res) => {
     })
 })
 
-// en esta version intente mantener el id original, pero rompe cuando intento volver a guardar los productos nose porque
+async function copyProducts(products){
+    await fs.promises.writeFile(fileName, JSON.stringify(products),null,2)
 
-/*
+}
+
 routerApi.put("/:id",(req,res) => {
     let productData = req.body // cuando se hace la actualizacion de un producto, se manda la informacion completa 
     let { id } = req.params
@@ -62,27 +66,8 @@ routerApi.put("/:id",(req,res) => {
             ...productData     
         }
         products[id-1] = newProduct
-        unContenedor.deleteAll().then( empty => {
-            products.forEach(element => {
-                delete element.id
-                console.log(element)
-                unContenedor.save(element)
-            });
-        })
-        
-
-    })
-    res.json("producto "+ id +  " actualizado correctamente")
-    
-})
-*/
-
-routerApi.put("/:id",(req,res) => {
-    let productData = req.body // cuando se hace la actualizacion de un producto, se manda la informacion completa 
-    let { id } = req.params
-    unContenedor.deleteById(id).then(empty => {
-        console.log(empty)
-        newID = unContenedor.save(productData).then(newID => res.json("Producto actualizado con nuevo id: " + newID))
+        copyProducts(products)
+        res.json("producto " + id + " actualizado correctamente")
     })
 })
 
