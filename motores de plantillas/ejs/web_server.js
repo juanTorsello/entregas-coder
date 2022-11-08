@@ -10,6 +10,7 @@ const routerApi = Router();
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 
+
 const modulo_Contenedor = require("../class_Contenedor");
 const Contenedor = modulo_Contenedor.Contenedor
 const fileName = "producto.txt"
@@ -23,9 +24,6 @@ async function inicializar_contenedor(){
 
 inicializar_contenedor()
 
-
-app.use("/api/productos",routerApi);
-// app.use(express.static(path.join(__dirname,"public")));
 
 app.set('views', './views');
 app.set('view engine', 'ejs');
@@ -47,50 +45,6 @@ app.get('/productos', (req, res) => {
     let products = unContenedor.getAll().then(products => res.render('form_productos',{products}))
 });
 
-
-routerApi.get("/",(req,res) => {
-    let products = unContenedor.getAll().then(products => res.json(products))
-})
-
-routerApi.get("/:id",(req,res) => {
-    let { id } = req.params
-    let product = unContenedor.getById(id).then(product => {
-        product == null ?  res.json({ error: "producto no encontrado"}) : res.json(product) 
-    })
-})
-
-
-routerApi.post("/",(req,res) => {
-    let newProduct = req.body
-    let idNewProduct = unContenedor.save(newProduct).then(idNewProduct => {
-        let resProduct = unContenedor.getById(idNewProduct).then(resProduct => res.json(resProduct))
-    })
-})
-
-async function copyProducts(products){
-    await fs.promises.writeFile(fileName, JSON.stringify(products),null,2)
-
-}
-
-routerApi.put("/:id",(req,res) => {
-    let productData = req.body // cuando se hace la actualizacion de un producto, se manda la informacion completa 
-    let { id } = req.params
-    let products = unContenedor.getAll().then(products => {
-        let newProduct = {
-            id : Number(id),
-            ...productData     
-        }
-        products[id-1] = newProduct
-        copyProducts(products)
-        res.json("producto " + id + " actualizado correctamente")
-    })
-})
-
-
-routerApi.delete("/:id",(req,res) => {
-    let { id } = req.params
-    unContenedor.deleteById(id).then( res.json("producto eliminado con exito") )
-})
 
 
 app
