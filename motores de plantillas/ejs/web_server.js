@@ -4,12 +4,11 @@ const { Router } = express;
 const path = require("path")
 const fs = require('fs');
 
+
 const app  = express();
-const routerApi = Router();
 
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
-
 
 const modulo_Contenedor = require("../class_Contenedor");
 const Contenedor = modulo_Contenedor.Contenedor
@@ -24,8 +23,8 @@ async function inicializar_contenedor(){
 
 inicializar_contenedor()
 
-
-app.set('views', './views');
+const viewFolder = path.join(__dirname,"views")
+app.set('views', viewFolder);
 app.set('view engine', 'ejs');
 
 
@@ -44,8 +43,6 @@ app.post("/productos",(req,res) => {
 app.get('/productos', (req, res) => {
     let products = unContenedor.getAll().then(products => res.render('form_productos',{products}))
 });
-
-
 
 app
     .listen(8080, () => {
